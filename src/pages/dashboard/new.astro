@@ -1,0 +1,125 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { ClerkProvider } from '../../components/ClerkProvider';
+---
+
+<Layout title="New Post - MCTD Warrior">
+  <div class="max-w-4xl mx-auto">
+    <div class="md:flex md:items-center md:justify-between mb-8">
+      <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          Create New Post
+        </h2>
+      </div>
+    </div>
+
+    <form id="post-form" class="space-y-6">
+      <div>
+        <label for="title" class="block text-sm font-medium leading-6 text-gray-900">Title</label>
+        <div class="mt-2">
+          <input
+            type="text"
+            name="title"
+            id="title"
+            required
+            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label for="slug" class="block text-sm font-medium leading-6 text-gray-900">Slug</label>
+        <div class="mt-2">
+          <input
+            type="text"
+            name="slug"
+            id="slug"
+            required
+            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label for="tags" class="block text-sm font-medium leading-6 text-gray-900">Tags (comma-separated)</label>
+        <div class="mt-2">
+          <input
+            type="text"
+            name="tags"
+            id="tags"
+            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label for="content" class="block text-sm font-medium leading-6 text-gray-900">Content</label>
+        <div class="mt-2">
+          <textarea
+            id="content"
+            name="content"
+            rows="15"
+            required
+            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-x-4">
+        <a
+          href="/dashboard"
+          class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          class="rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          Create Post
+        </button>
+      </div>
+    </form>
+  </div>
+</Layout>
+
+<script>
+  import { ConvexClient } from 'convex/browser';
+  import { api } from '../../../convex/_generated/api';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('post-form');
+    const client = new ConvexClient(import.meta.env.CONVEX_URL);
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target as HTMLFormElement);
+      
+      try {
+        await client.mutation(api.posts.createPost, {
+          title: formData.get('title') as string,
+          slug: formData.get('slug') as string,
+          content: formData.get('content') as string,
+          tags: formData.get('tags')?.toString().split(',').map(tag => tag.trim()) || [],
+          author: 'Admin', // You might want to get this from Clerk
+        });
+        
+        window.location.href = '/dashboard';
+      } catch (error) {
+        alert('Failed to create post');
+        console.error(error);
+      }
+    });
+
+    // Auto-generate slug from title
+    const titleInput = document.getElementById('title') as HTMLInputElement;
+    const slugInput = document.getElementById('slug') as HTMLInputElement;
+
+    titleInput?.addEventListener('input', () => {
+      slugInput.value = titleInput.value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    });
+  });
+</script> 

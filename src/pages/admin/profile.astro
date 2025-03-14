@@ -1,0 +1,48 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { ClerkProvider, UserProfile } from '@clerk/clerk-react';
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY;
+---
+
+<Layout title="Admin Profile - MCTD Warrior">
+  <div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-semibold text-gray-900">Admin Profile</h1>
+        <a
+          href="/admin/dashboard"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        >
+          Back to Dashboard
+        </a>
+      </div>
+      
+      <div class="mt-6">
+        <div class="bg-white shadow sm:rounded-lg">
+          <ClerkProvider publishableKey={publishableKey} client:only="react">
+            <UserProfile 
+              path="/admin/profile"
+              routing="path"
+              appearance={{
+                elements: {
+                  rootBox: "w-full max-w-none p-4",
+                  card: "shadow-none p-0",
+                  navbar: "hidden",
+                  pageScrollBox: "p-0"
+                }
+              }}
+            />
+          </ClerkProvider>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  :global(.cl-userProfile-root) {
+    width: 100% !important;
+    max-width: none !important;
+  }
+</style> 

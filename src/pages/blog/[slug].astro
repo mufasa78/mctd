@@ -1,0 +1,151 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { ConvexClient } from 'convex/browser';
+import { api } from '../../../convex/_generated/api';
+
+// Helper functions to clean up text
+function stripHtmlTags(html: string) {
+  if (typeof html !== 'string') return '';
+  return html.replace(/<\/?[^>]+(>|$)/g, '');
+}
+
+function decodeHtmlEntities(text: string) {
+  if (typeof text !== 'string') return '';
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8216;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/&#8211;/g, '–')
+    .replace(/&#8212;/g, '—');
+}
+
+function cleanText(text: string) {
+  if (typeof text !== 'string') return '';
+  return decodeHtmlEntities(stripHtmlTags(text))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const { slug } = Astro.params;
+const client = new ConvexClient(import.meta.env.CONVEX_URL);
+const post = await client.query(api.posts.getPostBySlug, { slug });
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+const cleanTitle = cleanText(post.title);
+---
+
+<Layout title={`${cleanTitle} - MCTD Warrior`}>
+  <article class="bg-white">
+    {/* Article header */}
+    <div class="relative overflow-hidden py-16 bg-gray-900">
+      {post.featuredImage && (
+        <div class="absolute inset-0">
+          <img
+            src={post.featuredImage}
+            alt=""
+            class="h-full w-full object-cover opacity-30"
+          />
+          <div class="absolute inset-0 bg-gray-900/70 mix-blend-multiply"></div>
+        </div>
+      )}
+      
+      <div class="relative mx-auto max-w-4xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:mx-0">
+          <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+            {cleanTitle}
+          </h1>
+          <div class="mt-6 flex items-center gap-x-4 text-xs text-gray-300">
+            <time datetime={new Date(post.publishedDate).toISOString()}>
+              {new Date(post.publishedDate).toLocaleDateString()}
+            </time>
+            <span class="relative z-10 rounded-full bg-gray-100 px-3 py-1.5 font-medium text-gray-600">
+              {cleanText(post.category)}
+            </span>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2">
+            {post.tags.map((tag) => (
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary">
+                {cleanText(tag)}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Article content */}
+    <div class="mx-auto max-w-4xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl lg:mx-0">
+        <div class="mt-10 prose prose-lg prose-primary mx-auto">
+          <div set:html={post.content} />
+        </div>
+
+        <div class="mt-16 border-t border-gray-200 pt-8">
+          <div class="flex items-center gap-x-4">
+            <img
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(cleanText(post.author))}&background=random`}
+              alt=""
+              class="h-10 w-10 rounded-full bg-gray-100"
+            />
+            <div class="text-sm leading-6">
+              <p class="font-semibold text-gray-900">{cleanText(post.author)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <a
+            href="/blog"
+            class="text-primary hover:text-primary-dark font-medium"
+          >
+            ← Back to blog
+          </a>
+        </div>
+      </div>
+    </div>
+  </article>
+</Layout>
+
+<style is:global>
+  .prose img {
+    @apply rounded-lg shadow-lg my-8;
+  }
+  
+  .prose a {
+    @apply text-primary hover:text-primary-dark;
+  }
+  
+  .prose h2 {
+    @apply text-2xl font-bold mt-8 mb-4;
+  }
+  
+  .prose h3 {
+    @apply text-xl font-semibold mt-6 mb-3;
+  }
+  
+  .prose p {
+    @apply mb-4;
+  }
+  
+  .prose ul {
+    @apply list-disc list-inside mb-4;
+  }
+  
+  .prose ol {
+    @apply list-decimal list-inside mb-4;
+  }
+  
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic my-6;
+  }
+</style> 

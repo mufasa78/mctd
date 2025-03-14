@@ -1,0 +1,135 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const features = [
+  {
+    name: 'Education',
+    description: 'Providing comprehensive information about autoimmune conditions and chronic illnesses.',
+    icon: '📚'
+  },
+  {
+    name: 'Community',
+    description: 'Building a supportive community where warriors can share experiences and find understanding.',
+    icon: '🤝'
+  },
+  {
+    name: 'Resources',
+    description: 'Connecting you with medical resources and support for managing chronic conditions.',
+    icon: '🔍'
+  },
+  {
+    name: 'Advocacy',
+    description: 'Raising awareness about chronic illnesses and advocating for better understanding.',
+    icon: '📢'
+  }
+];
+---
+
+<Layout title="About - MCTD Warrior">
+  <div class="bg-white">
+    <!-- Hero section -->
+    <div class="relative">
+      <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gray-100"></div>
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="relative shadow-xl sm:rounded-2xl sm:overflow-hidden">
+          <div class="absolute inset-0">
+            <div class="absolute inset-0 bg-gradient-to-r from-primary to-purple-800 mix-blend-multiply"></div>
+          </div>
+          <div class="relative px-4 py-16 sm:px-6 sm:py-24 lg:py-32 lg:px-8">
+            <h1 class="text-center text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+              <span class="block text-white">About MCTD Warrior</span>
+            </h1>
+            <p class="mt-6 max-w-lg mx-auto text-center text-xl text-gray-200 sm:max-w-3xl">
+              Empowering and supporting those living with chronic autoimmune conditions through education, community, and advocacy.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- About section -->
+    <div class="relative py-16 bg-white overflow-hidden">
+      <div class="relative px-4 sm:px-6 lg:px-8">
+        <div class="lg:flex lg:items-center lg:gap-x-12 max-w-7xl mx-auto">
+          <div class="lg:w-1/3">
+            <div class="aspect-w-3 aspect-h-4 rounded-2xl overflow-hidden shadow-xl bg-gray-100">
+              <img
+                src="/wendygikono.png"
+                alt="Wendy Gikono - MCTD Warrior Founder"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+          <div class="mt-8 lg:mt-0 lg:w-2/3">
+            <div class="text-lg max-w-prose">
+              <h2 class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">Meet Wendy Gikono</h2>
+              <div class="mt-8 space-y-6 text-gray-500">
+                <p>
+                  Wendy Gikono is a blogger and chronic illness advocate, born and raised in Nairobi, Kenya. For the past 18 years, she has been living with multiple chronic autoimmune conditions that have significantly impacted her life. Despite the challenges she has faced, Wendy remains determined to use her personal experience to create awareness about these conditions and help others who are also struggling.
+                </p>
+                <p>
+                  Through her blog and social media platforms, Wendy shares her journey and experiences, providing valuable insights into how she manages her conditions and the impact they have on her daily life. She hopes to inspire and educate others on the importance of self-care and self-advocacy in managing chronic illnesses.
+                </p>
+                <p>
+                  Wendy's passion for creating awareness about chronic illnesses led her to start an Instagram account, where she shares daily updates on her health and raises awareness about various conditions. Her account has become a source of comfort and support for many others who are living with chronic illnesses, as they find in her an advocate who understands their struggles.
+                </p>
+                <p>
+                  Wendy's commitment to raising awareness about chronic illnesses has earned her recognition and praise from various individuals and organizations in the healthcare community. She continues to inspire and touch the lives of many, proving that one can still live a fulfilling life even with chronic illnesses.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features section -->
+    <div class="relative bg-gray-50 py-16 sm:py-24 lg:py-32">
+      <div class="mx-auto max-w-md px-4 text-center sm:max-w-3xl sm:px-6 lg:max-w-7xl lg:px-8">
+        <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">What We Offer</h2>
+        <p class="mt-5 max-w-prose mx-auto text-xl text-gray-500">
+          Our comprehensive approach to supporting the chronic illness community
+        </p>
+        <div class="mt-12">
+          <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map(feature => (
+              <div class="pt-6">
+                <div class="flow-root bg-white rounded-lg px-6 pb-8">
+                  <div class="-mt-6">
+                    <div class="inline-flex items-center justify-center p-3 bg-primary rounded-md shadow-lg transform -translate-y-1/2">
+                      <span class="text-3xl" aria-hidden="true">{feature.icon}</span>
+                    </div>
+                    <h3 class="mt-8 text-lg font-medium text-gray-900 tracking-tight">{feature.name}</h3>
+                    <p class="mt-5 text-base text-gray-500">{feature.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA section -->
+    <div class="bg-primary">
+      <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
+        <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          <span class="block">Join our community</span>
+          <span class="block text-gray-200">Follow Wendy's journey and stay updated.</span>
+        </h2>
+        <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+          <div class="inline-flex rounded-md shadow">
+            <a
+              href="https://www.instagram.com/mctd_warrior"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary bg-white hover:bg-gray-50"
+            >
+              Follow on Instagram
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout> 

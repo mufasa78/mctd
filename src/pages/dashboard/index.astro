@@ -1,0 +1,126 @@
+import Layout from '../../layouts/Layout.astro';
+import { ClerkProvider } from '../../components/ClerkProvider';
+import { ConvexClient } from 'convex/browser';
+import { api } from '../../../convex/_generated/api';
+
+// Redirect if not authenticated
+const client = new ConvexClient(import.meta.env.CONVEX_URL);
+let posts = [];
+let error = null;
+
+try {
+  posts = await client.query(api.posts.getAllPosts);
+} catch (e) {
+  error = e instanceof Error ? e.message : 'Failed to load posts';
+}
+
+<Layout title="Dashboard - MCTD Warrior">
+  <div class="max-w-7xl mx-auto">
+    <div class="md:flex md:items-center md:justify-between mb-8">
+      <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          Blog Posts
+        </h2>
+      </div>
+      <div class="mt-4 flex md:ml-4 md:mt-0">
+        <a
+          href="/dashboard/new"
+          class="ml-3 inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          New Post
+        </a>
+      </div>
+    </div>
+
+    {error && (
+      <div class="rounded-md bg-red-50 p-4 mb-6">
+        <div class="flex">
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Error</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <p>{error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div class="mt-8 flow-root">
+      <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+            <table class="min-w-full divide-y divide-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Title</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Author</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Published Date</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                  <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                    <span class="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 bg-white">
+                {posts.map((post) => (
+                  <tr>
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                      {post.title}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{post.author}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      {new Date(post.publishedDate).toLocaleDateString()}
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                      <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        post.isPublished ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {post.isPublished ? 'Published' : 'Draft'}
+                      </span>
+                    </td>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                      <a href={`/dashboard/edit/${post._id}`} class="text-primary hover:text-primary-dark mr-4">
+                        Edit
+                      </a>
+                      <button
+                        data-post-id={post._id}
+                        class="text-red-600 hover:text-red-900 delete-post"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { ConvexClient } from 'convex/browser';
+  import { api } from '../../../convex/_generated/api';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const deleteButtons = document.querySelectorAll('.delete-post');
+    const client = new ConvexClient(import.meta.env.CONVEX_URL);
+
+    deleteButtons.forEach(button => {
+      button.addEventListener('click', async () => {
+        const postId = button.getAttribute('data-post-id');
+        if (!confirm('Are you sure you want to delete this post?')) return;
+        
+        try {
+          await client.mutation(api.posts.deletePost, { id: postId });
+          window.location.reload();
+        } catch (error) {
+          alert('Failed to delete post');
+          console.error(error);
+        }
+      });
+    });
+  });
+</script> 

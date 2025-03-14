@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { SignUp, ClerkProvider } from '@clerk/clerk-react';
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY;
+---
+
+<Layout title="Sign Up - MCTD Warrior">
+  <div class="min-h-[70vh] flex items-center justify-center">
+    <div class="w-full max-w-md">
+      <ClerkProvider publishableKey={publishableKey} client:only="react">
+        <SignUp routing="path" path="/sign-up" signInUrl="/sign-in" client:only="react" />
+      </ClerkProvider>
+    </div>
+  </div>
+</Layout> 

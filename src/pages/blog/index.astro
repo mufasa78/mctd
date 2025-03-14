@@ -1,0 +1,173 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { ConvexClient } from 'convex/browser';
+import { api } from '../../../convex/_generated/api';
+
+// Helper functions to clean up text
+function stripHtmlTags(html: string) {
+  if (typeof html !== 'string') return '';
+  return html.replace(/<\/?[^>]+(>|$)/g, '');
+}
+
+function decodeHtmlEntities(text: string) {
+  if (typeof text !== 'string') return '';
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8216;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/&#8211;/g, '–')
+    .replace(/&#8212;/g, '—');
+}
+
+function cleanText(text: string) {
+  if (typeof text !== 'string') return '';
+  return decodeHtmlEntities(stripHtmlTags(text))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Get page from URL params
+const page = parseInt(Astro.url.searchParams.get('page') || '1');
+const postsPerPage = 6;
+
+let posts = [];
+let error = null;
+let totalPosts = 0;
+
+try {
+  const client = new ConvexClient(import.meta.env.CONVEX_URL);
+  const allPosts = await client.query(api.posts.getPublished);
+  totalPosts = allPosts.length;
+  
+  // Calculate pagination
+  const startIndex = (page - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  posts = allPosts.slice(startIndex, endIndex);
+} catch (e) {
+  error = e instanceof Error ? e.message : 'Failed to load posts';
+}
+
+const totalPages = Math.ceil(totalPosts / postsPerPage);
+---
+
+<Layout title="Blog - MCTD Warrior">
+  <div class="relative isolate overflow-hidden bg-gradient-to-b from-primary-100 pb-16 pt-14 sm:pb-20">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+          MCTD Warrior Blog
+        </h1>
+        <p class="mt-6 text-lg leading-8 text-gray-600">
+          Stories, insights, and support for the MCTD community. Join us in sharing experiences and knowledge.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-6 lg:px-8 -mt-8">
+    {error && (
+      <div class="mt-6 rounded-md bg-red-50 p-4">
+        <p class="text-sm text-red-700">{error}</p>
+      </div>
+    )}
+
+    <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-12 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+      {posts.map((post) => (
+        <article class="flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+          {post.featuredImage && (
+            <div class="relative w-full aspect-[16/9] overflow-hidden">
+              <img 
+                src={post.featuredImage} 
+                alt="" 
+                class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              />
+            </div>
+          )}
+          <div class="flex-1 p-6">
+            <div class="flex items-center gap-x-4 text-xs">
+              <time datetime={new Date(post.publishedDate).toISOString()} class="text-gray-500">
+                {new Date(post.publishedDate).toLocaleDateString()}
+              </time>
+              {post.category && (
+                <span class="relative z-10 rounded-full bg-primary-100 px-3 py-1.5 font-medium text-primary">
+                  {cleanText(post.category)}
+                </span>
+              )}
+            </div>
+            <div class="group">
+              <h3 class="mt-3 text-xl font-semibold leading-6 text-gray-900 hover:text-primary transition-colors">
+                <a href={`/blog/${post.slug}`}>
+                  <span class="absolute inset-0"></span>
+                  {cleanText(post.title)}
+                </a>
+              </h3>
+              <p class="mt-4 line-clamp-3 text-sm leading-6 text-gray-600">
+                {cleanText(post.excerpt)}
+              </p>
+            </div>
+            <div class="mt-6 flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  {cleanText(tag)}
+                </span>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    {/* Pagination */}
+    {totalPages > 1 && (
+      <div class="mt-16 flex items-center justify-center gap-x-2">
+        {page > 1 && (
+          <a
+            href={`/blog?page=${page - 1}`}
+            class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
+          >
+            Previous
+          </a>
+        )}
+        
+        <div class="flex items-center gap-x-2">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+            <a
+              href={`/blog?page=${pageNum}`}
+              class:list={[
+                'inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold transition-colors',
+                pageNum === page
+                  ? 'bg-primary text-white shadow-sm hover:bg-primary-light'
+                  : 'bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
+              ]}
+            >
+              {pageNum}
+            </a>
+          ))}
+        </div>
+
+        {page < totalPages && (
+          <a
+            href={`/blog?page=${page + 1}`}
+            class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
+          >
+            Next
+          </a>
+        )}
+      </div>
+    )}
+
+    {posts.length === 0 && !error && (
+      <div class="text-center py-12">
+        <h3 class="mt-2 text-lg font-semibold text-gray-900">No posts found</h3>
+        <p class="mt-1 text-gray-500">Check back soon for new content!</p>
+      </div>
+    )}
+  </div>
+</Layout> 

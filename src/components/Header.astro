@@ -1,0 +1,59 @@
+---
+import AuthButtons from './AuthButtons.tsx';
+
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/about', label: 'About' }
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="bg-white shadow-sm">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex">
+        <a href="/" class="flex items-center text-2xl font-bold text-primary">
+          MCTD Warrior
+        </a>
+        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+          {navItems.map(item => (
+            <a
+              href={item.href}
+              class:list={[
+                'inline-flex items-center px-1 pt-1 text-sm font-medium',
+                currentPath === item.href
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ]}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </div>
+      <div class="flex items-center">
+        <AuthButtons client:load />
+      </div>
+    </div>
+    <!-- Mobile menu -->
+    <div class="sm:hidden">
+      <div class="pt-2 pb-3 space-y-1">
+        {navItems.map(item => (
+          <a
+            href={item.href}
+            class:list={[
+              'block pl-3 pr-4 py-2 text-base font-medium',
+              currentPath === item.href
+                ? 'text-primary border-l-4 border-primary'
+                : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            ]}
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  </nav>
+</header> 

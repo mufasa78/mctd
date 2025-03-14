@@ -1,0 +1,60 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SignInForm from '../components/SignInForm';
+
+// Get the return URL from the query parameters
+const returnUrl = Astro.url.searchParams.get('redirect') || '/admin';
+
+// If we have an error message, get it
+const error = Astro.url.searchParams.get('error');
+---
+
+<Layout title="Sign In - MCTD Warrior">
+  <div class="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+      <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+        Admin Sign In
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Sign in to access the admin dashboard
+      </p>
+      {error && (
+        <div class="mt-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+          {decodeURIComponent(error)}
+        </div>
+      )}
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
+        <SignInForm client:only="react" returnUrl={returnUrl} />
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  :global(.cl-rootBox) {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  :global(.cl-card) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  :global(.cl-formButtonPrimary) {
+    background-color: var(--primary) !important;
+  }
+  :global(.cl-formButtonPrimary:hover) {
+    background-color: var(--primary-dark) !important;
+  }
+  :global(.cl-footerActionLink) {
+    color: var(--primary) !important;
+  }
+  :global(.cl-footerActionLink:hover) {
+    color: var(--primary-dark) !important;
+  }
+</style> 

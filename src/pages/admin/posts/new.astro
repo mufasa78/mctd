@@ -1,0 +1,178 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { ClerkProvider } from '@clerk/clerk-react';
+import { api } from '../../../../convex/_generated/api';
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY;
+---
+
+<Layout title="Create New Post - MCTD Warrior">
+  <div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-semibold text-gray-900">Create New Post</h1>
+        <a
+          href="/admin/dashboard"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        >
+          Back to Dashboard
+        </a>
+      </div>
+
+      <div class="mt-6">
+        <div class="bg-white shadow sm:rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <form id="post-form" class="space-y-6">
+              <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <div class="mt-1">
+                  <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label for="slug" class="block text-sm font-medium text-gray-700">Slug</label>
+                <div class="mt-1">
+                  <input
+                    type="text"
+                    name="slug"
+                    id="slug"
+                    class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label for="excerpt" class="block text-sm font-medium text-gray-700">Excerpt</label>
+                <div class="mt-1">
+                  <textarea
+                    name="excerpt"
+                    id="excerpt"
+                    rows="3"
+                    class="shadow-sm focus:ring-primary focus:border-primary block w-full sm:text-sm border-gray-300 rounded-md"
+                    required
+                  ></textarea>
+                </div>
+              </div>
+
+              <div>
+                <label for="content" class="block text-sm font-medium text-gray-700">Content</label>
+                <div class="mt-1">
+                  <div id="editor" class="min-h-[400px] border border-gray-300 rounded-md"></div>
+                </div>
+              </div>
+
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  name="published"
+                  id="published"
+                  class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                />
+                <label for="published" class="ml-2 block text-sm text-gray-900">
+                  Publish immediately
+                </label>
+              </div>
+
+              <div class="flex justify-end">
+                <button
+                  type="submit"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  Create Post
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { ConvexProvider, useConvex } from 'convex/react';
+  import { api } from '../../../../convex/_generated/api';
+  import EditorJS from '@editorjs/editorjs';
+  import Header from '@editorjs/header';
+  import List from '@editorjs/list';
+  import Quote from '@editorjs/quote';
+  import ImageTool from '@editorjs/image';
+
+  // Initialize Editor.js
+  const editor = new EditorJS({
+    holder: 'editor',
+    tools: {
+      header: {
+        class: Header,
+        inlineToolbar: true
+      },
+      list: {
+        class: List,
+        inlineToolbar: true
+      },
+      quote: {
+        class: Quote,
+        inlineToolbar: true
+      },
+      image: {
+        class: ImageTool,
+        config: {
+          endpoints: {
+            byFile: '/api/uploadImage'
+          }
+        }
+      }
+    },
+    placeholder: 'Start writing your post...'
+  });
+
+  // Handle form submission
+  document.getElementById('post-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const editorData = await editor.save();
+
+    try {
+      const convex = useConvex();
+      await convex.mutation(api.posts.create, {
+        title: formData.get('title') as string,
+        slug: formData.get('slug') as string,
+        excerpt: formData.get('excerpt') as string,
+        content: JSON.stringify(editorData),
+        published: formData.get('published') === 'on'
+      });
+
+      window.location.href = '/admin/dashboard';
+    } catch (error) {
+      console.error('Error creating post:', error);
+      alert('Failed to create post. Please try again.');
+    }
+  });
+
+  // Auto-generate slug from title
+  document.getElementById('title')?.addEventListener('input', (e) => {
+    const title = (e.target as HTMLInputElement).value;
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    
+    (document.getElementById('slug') as HTMLInputElement).value = slug;
+  });
+</script>
+
+<style>
+  /* Editor.js styles */
+  :global(.codex-editor) {
+    padding: 1rem !important;
+  }
+</style> 
