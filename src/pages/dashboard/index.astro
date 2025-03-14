@@ -1,3 +1,4 @@
+---
 import Layout from '../../layouts/Layout.astro';
 import { ClerkProvider } from '../../components/ClerkProvider';
 import { ConvexClient } from 'convex/browser';
@@ -13,9 +14,10 @@ try {
 } catch (e) {
   error = e instanceof Error ? e.message : 'Failed to load posts';
 }
+---
 
 <Layout title="Dashboard - MCTD Warrior">
-  <div class="max-w-7xl mx-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="md:flex md:items-center md:justify-between mb-8">
       <div class="min-w-0 flex-1">
         <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
@@ -72,10 +74,13 @@ try {
                       {new Date(post.publishedDate).toLocaleDateString()}
                     </td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        post.isPublished ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {post.isPublished ? 'Published' : 'Draft'}
+                      <span 
+                        class:list={[
+                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+                          post.isPublished ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                        ]}
+                      >
+                        {post.isPublished ? "Published" : "Draft"}
                       </span>
                     </td>
                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
